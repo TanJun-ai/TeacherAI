@@ -79,6 +79,9 @@ def parse_analysis_result(analysis_result):
 
 # 可视化分析结果
 def visualize_analysis(issues, details, score):
+    # 设置 Matplotlib 支持中文
+    plt.rcParams['font.sans-serif'] = ['SimHei']  # 设置字体为 SimHei
+    plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
     # 显示代码质量评分
     st.write("### 代码质量评分")
     st.metric("评分", f"{score}/100")
