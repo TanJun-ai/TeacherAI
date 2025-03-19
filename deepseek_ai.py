@@ -87,8 +87,8 @@ def visualize_analysis(issues, analysis_result, score):
     st.write("### 问题分布")
     fig, ax = plt.subplots()
     ax.bar(issues.keys(), issues.values(), color=['red', 'orange', 'yellow'])
-    ax.set_ylabel("数量")
-    ax.set_title("代码问题分布")
+    ax.set_ylabel("number")
+    ax.set_title("Code Problem Distribution")
     st.pyplot(fig)
 
     # 显示详细问题列表
