@@ -33,7 +33,7 @@ def analyze_code_with_openai(code, language="python"):
         response = client.chat.completions.create(
             model="deepseek-chat",
             messages=[
-                {"role": "system", "content": "你是一个代码分析助手，可以检测代码中的错误、警告和风格问题，并给出代码质量评分（0-100分）。"},
+                {"role": "system", "content": "你是一个代码分析助手，可以检测代码中的Syntax Error、Syntax Warning、Style Problem，并给出代码质量评分Score（0-100分）。"},
                 {"role": "user", "content": f"请分析以下 {language} 代码，列出所有问题，并给出代码质量评分：\n\n{code}"}
             ]
         )
@@ -45,28 +45,28 @@ def analyze_code_with_openai(code, language="python"):
 # 解析分析结果
 def parse_analysis_result(analysis_result):
     issues = {
-        "错误": 0,
-        "警告": 0,
-        "风格问题": 0
+        "Syntax Error": 0,
+        "Syntax Warning": 0,
+        "Style Problem": 0
     }
     details = []
     score = 100  # 默认评分
 
     # 解析 OpenAI 返回的分析结果
     for line in analysis_result.split("\n"):
-        if "错误" in line:
-            issues["错误"] += 1
-            details.append({"type": "错误", "message": line})
+        if "Syntax Error" in line:
+            issues["Syntax Error"] += 1
+            details.append({"type": "Syntax Error", "message": line})
             score -= 5  # 每个错误扣 5 分
-        elif "警告" in line:
-            issues["警告"] += 1
-            details.append({"type": "警告", "message": line})
+        elif "Syntax Warning" in line:
+            issues["Syntax Warning"] += 1
+            details.append({"type": "Syntax Warning", "message": line})
             score -= 2  # 每个警告扣 2 分
-        elif "风格问题" in line:
-            issues["风格问题"] += 1
-            details.append({"type": "风格问题", "message": line})
+        elif "Style Problem" in line:
+            issues["Style Problem"] += 1
+            details.append({"type": "Style Problem", "message": line})
             score -= 1  # 每个风格问题扣 1 分
-        elif "评分" in line:
+        elif "Score" in line:
             # 提取评分
             try:
                 score = int(line.split(":")[1].strip())
@@ -75,13 +75,10 @@ def parse_analysis_result(analysis_result):
 
     # 确保评分在 0-100 之间
     score = max(0, min(100, score))
-    return issues, details, score
+    return issues, analysis_result, score
 
 # 可视化分析结果
-def visualize_analysis(issues, details, score):
-    # 设置 Matplotlib 支持中文
-    plt.rcParams['font.sans-serif'] = ['SimHei']  # 设置字体为 SimHei
-    plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+def visualize_analysis(issues, analysis_result, score):
     # 显示代码质量评分
     st.write("### 代码质量评分")
     st.metric("评分", f"{score}/100")
@@ -95,9 +92,7 @@ def visualize_analysis(issues, details, score):
     st.pyplot(fig)
 
     # 显示详细问题列表
-    st.write("### 详细问题")
-    for detail in details:
-        st.write(f"- **类型**: {detail['type']}, **消息**: {detail['message']}")
+    st.write(analysis_result)
 
 # '''======================3、添加学习记录功能模块=========================='''
 # 初始化数据库（使用 CSV 文件模拟）
@@ -229,8 +224,8 @@ def main():
                     st.error(analysis_result["error"])
                 else:
                     st.write("### 代码分析结果")
-                    issues, details, score = parse_analysis_result(analysis_result["analysis"])
-                    visualize_analysis(issues, details, score)
+                    issues, analysis_result, score = parse_analysis_result(analysis_result["analysis"])
+                    visualize_analysis(issues, analysis_result, score)
             else:
                 st.warning("请输入代码。")
 
